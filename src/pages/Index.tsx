@@ -1,13 +1,20 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Hero from "@/components/Hero";
+import CropDiseaseDetection from "@/components/CropDiseaseDetection";
+import AIChatbot from "@/components/AIChatbot";
+import WeatherRecommendations from "@/components/WeatherRecommendations";
+import MarketPrices from "@/components/MarketPrices";
+import KnowledgeHub from "@/components/KnowledgeHub";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <>
+      <Hero />
+      <CropDiseaseDetection />
+      <AIChatbot />
+      <WeatherRecommendations />
+      <MarketPrices />
+      <KnowledgeHub />
+    </>
   );
 };
 
