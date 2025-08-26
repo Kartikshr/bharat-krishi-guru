@@ -43,25 +43,62 @@ const AIChatbot = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const userQuery = input;
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response - Replace with actual Gemini API integration
+    // Real Gemini API integration
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': 'AIzaSyAL2-SMsbV4m_Ztt2dwe8_lQSx9bTQ1cKU'
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `You are an agricultural assistant for Indian farmers. Answer in Hindi and English as appropriate. Focus on practical farming advice, crop management, fertilizers, government schemes, and agricultural best practices. User query: ${userQuery}`
+                }
+              ]
+            }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response. Please try again.";
       
       const botResponse: Message = {
         id: Date.now() + 1,
-        text: generateAIResponse(input),
+        text: aiResponseText,
         sender: 'bot',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, botResponse]);
     } catch (error) {
+      console.error('Gemini API Error:', error);
+      
+      // Fallback to local responses if API fails
+      const fallbackResponse: Message = {
+        id: Date.now() + 1,
+        text: generateLocalFallback(userQuery),
+        sender: 'bot',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, fallbackResponse]);
+      
       toast({
-        title: "Error",
-        description: "Failed to get AI response. Please try again.",
+        title: "Using Offline Mode",
+        description: "AI service temporarily unavailable. Using local knowledge base.",
         variant: "destructive"
       });
     } finally {
@@ -71,8 +108,8 @@ const AIChatbot = () => {
     setTimeout(scrollToBottom, 100);
   };
 
-  const generateAIResponse = (userInput: string): string => {
-    // Mock AI responses based on keywords
+  const generateLocalFallback = (userInput: string): string => {
+    // Fallback responses when Gemini API is unavailable
     const lowerInput = userInput.toLowerCase();
     
     if (lowerInput.includes('fertilizer') || lowerInput.includes('उर्वरक')) {

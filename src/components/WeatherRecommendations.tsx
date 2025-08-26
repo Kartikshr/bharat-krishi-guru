@@ -61,7 +61,76 @@ const WeatherRecommendations = () => {
     }
   };
 
-  const generateRecommendations = (weather: WeatherData) => {
+  const generateRecommendations = async (weather: WeatherData) => {
+    try {
+      // Use Gemini API for intelligent weather-based recommendations
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-goog-api-key': 'AIzaSyAL2-SMsbV4m_Ztt2dwe8_lQSx9bTQ1cKU'
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `You are an agricultural expert. Based on the following weather conditions, provide 3-5 specific farming recommendations in JSON format. Weather: Temperature: ${weather.temperature}°C, Humidity: ${weather.humidity}%, Wind Speed: ${weather.windSpeed} km/h, Rainfall: ${weather.rainfall}mm, Condition: ${weather.condition}. 
+
+Return only valid JSON in this exact format:
+[
+  {
+    "type": "irrigation|fertilizer|protection|harvesting",
+    "title": "Short title in English",
+    "description": "Detailed recommendation in English",
+    "priority": "high|medium|low"
+  }
+]`
+                }
+              ]
+            }
+          ]
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        try {
+          // Parse AI response as JSON
+          const aiRecommendations = JSON.parse(aiResponse);
+          
+          const formattedRecs: Recommendation[] = aiRecommendations.map((rec: any, index: number) => ({
+            ...rec,
+            icon: getIconForType(rec.type)
+          }));
+          
+          setRecommendations(formattedRecs);
+          return;
+        } catch (parseError) {
+          console.error('Failed to parse AI recommendations:', parseError);
+        }
+      }
+    } catch (error) {
+      console.error('Gemini API Error for recommendations:', error);
+    }
+
+    // Fallback to local recommendations if AI fails
+    generateLocalRecommendations(weather);
+  };
+
+  const getIconForType = (type: string) => {
+    switch (type) {
+      case 'irrigation': return Droplets;
+      case 'fertilizer': return Sun;
+      case 'protection': return CloudRain;
+      case 'harvesting': return Sun;
+      default: return Wind;
+    }
+  };
+
+  const generateLocalRecommendations = (weather: WeatherData) => {
     const recs: Recommendation[] = [];
 
     // Temperature-based recommendations
