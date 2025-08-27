@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Menu, Mic, Globe, User, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Header = () => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     // Get initial session
@@ -32,6 +34,9 @@ const Header = () => {
     navigate("/");
   };
 
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'hi' : 'en');
+  };
   return (
     <header className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -41,8 +46,8 @@ const Header = () => {
               <span className="text-primary-foreground font-bold text-lg">🌾</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-primary">Bharat Krishi Guru</h1>
-              <p className="text-xs text-muted-foreground">कृषि का डिजिटल साथी</p>
+              <h1 className="text-xl font-bold text-primary">{t('header.title')}</h1>
+              <p className="text-xs text-muted-foreground">{t('header.subtitle')}</p>
             </div>
           </div>
           
@@ -69,7 +74,7 @@ const Header = () => {
               <>
                 <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
                   <User className="w-4 h-4 mr-2" />
-                  Dashboard
+                  {t('header.dashboard')}
                 </Button>
                 <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate("/dashboard")}>
                   <AvatarFallback className="bg-primary text-primary-foreground text-xs">
@@ -83,16 +88,16 @@ const Header = () => {
             ) : (
               <>
                 <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
-                  Sign In
+                  {t('header.signin')}
                 </Button>
                 <Button variant="default" size="sm" onClick={() => navigate("/auth")}>
-                  Sign Up
+                  {t('header.signup')}
                 </Button>
               </>
             )}
-            <Button variant="outline" size="sm" className="hidden sm:flex">
+            <Button variant="outline" size="sm" className="hidden sm:flex" onClick={toggleLanguage}>
               <Globe className="w-4 h-4 mr-2" />
-              हिंदी
+              {language === 'en' ? 'हिंदी' : 'English'}
             </Button>
             <Button variant="outline" size="sm" className="hidden md:flex">
               <Mic className="w-4 h-4" />

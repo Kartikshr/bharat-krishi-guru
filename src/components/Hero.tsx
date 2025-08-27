@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Camera, MessageCircle, CloudRain } from "lucide-react";
 import heroImage from "@/assets/hero-agriculture.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Hero = () => {
+  const { t } = useLanguage();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -19,26 +22,35 @@ const Hero = () => {
       <div className="relative z-10 container mx-auto px-4 py-20 text-center text-primary-foreground">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            भारत कृषि गुरु
+            {t('hero.title')}
             <span className="block text-2xl md:text-3xl mt-2 opacity-90">
-              Your Digital Farming Companion
+              {t('hero.subtitle')}
             </span>
           </h1>
           
           <p className="text-lg md:text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            AI-powered crop disease detection, multilingual farming assistant, weather recommendations, 
-            and market insights - all in your local language
+            {t('hero.description')}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button variant="secondary" size="lg" className="bg-accent text-accent-foreground hover:bg-accent-hover">
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              className="bg-accent text-accent-foreground hover:bg-accent-hover"
+              onClick={() => document.getElementById('crop-detection')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <Camera className="w-5 h-5 mr-2" />
-              Detect Crop Disease
+              {t('hero.detectDisease')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <Button variant="outline" size="lg" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+              onClick={() => document.getElementById('chatbot')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <MessageCircle className="w-5 h-5 mr-2" />
-              Ask AI Assistant
+              {t('hero.askAI')}
             </Button>
           </div>
           
@@ -48,21 +60,24 @@ const Hero = () => {
                 <Camera className="w-6 h-6 text-accent-foreground" />
               </div>
               <h3 className="font-semibold mb-2">Disease Detection</h3>
-              <p className="text-sm opacity-80">Upload crop images for instant AI diagnosis</p>
+              <h3 className="font-semibold mb-2">{t('features.diseaseDetection')}</h3>
+              <p className="text-sm opacity-80">{t('features.diseaseDesc')}</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-3">
                 <MessageCircle className="w-6 h-6 text-accent-foreground" />
               </div>
               <h3 className="font-semibold mb-2">Multilingual Assistant</h3>
-              <p className="text-sm opacity-80">Voice & text support in your language</p>
+              <h3 className="font-semibold mb-2">{t('features.multilingualAssistant')}</h3>
+              <p className="text-sm opacity-80">{t('features.assistantDesc')}</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-3">
                 <CloudRain className="w-6 h-6 text-accent-foreground" />
               </div>
               <h3 className="font-semibold mb-2">Smart Recommendations</h3>
-              <p className="text-sm opacity-80">Weather-based farming guidance</p>
+              <h3 className="font-semibold mb-2">{t('features.smartRecommendations')}</h3>
+              <p className="text-sm opacity-80">{t('features.recommendationsDesc')}</p>
             </div>
           </div>
         </div>
