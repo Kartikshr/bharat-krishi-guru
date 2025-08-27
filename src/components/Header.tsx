@@ -64,7 +64,7 @@ const Header = () => {
             </a>
           </nav>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             {user ? (
               <>
                 <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
@@ -85,7 +85,7 @@ const Header = () => {
                 <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
                   Sign In
                 </Button>
-                <Button size="sm" onClick={() => navigate("/auth")}>
+                <Button variant="default" size="sm" onClick={() => navigate("/auth")}>
                   Sign Up
                 </Button>
               </>
@@ -94,7 +94,7 @@ const Header = () => {
               <Globe className="w-4 h-4 mr-2" />
               हिंदी
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="hidden md:flex">
               <Mic className="w-4 h-4" />
             </Button>
             <Button variant="outline" size="sm" className="md:hidden">
