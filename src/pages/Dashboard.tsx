@@ -80,10 +80,10 @@ const Dashboard = () => {
   };
 
   const dashboardStats = [
-    { title: "Disease Detections", count: "12", icon: Camera, color: "bg-destructive" },
+    { title: "Disease Detections", count: profile?.crops?.length || "0", icon: Camera, color: "bg-destructive" },
     { title: "AI Consultations", count: "8", icon: Bot, color: "bg-primary" },
     { title: "Weather Alerts", count: "3", icon: Cloud, color: "bg-accent" },
-    { title: "Knowledge Articles", count: "25", icon: Book, color: "bg-nature-medium" },
+    { title: "Crops Managed", count: profile?.crops?.length?.toString() || "0", icon: Sprout, color: "bg-nature-medium" },
   ];
 
   const quickActions = [
