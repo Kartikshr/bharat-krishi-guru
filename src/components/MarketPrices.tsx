@@ -17,7 +17,19 @@ interface MarketPrice {
   trend: 'up' | 'down' | 'stable';
   change: number;
 }
+// Helper to calculate price trend and percentage change
+const calculateTrend = (today: number, yesterday: number) => {
+  if (!yesterday || yesterday === 0) {
+    return { trend: 'stable' as const, change: 0 };
+  }
 
+  const change = ((today - yesterday) / yesterday) * 100;
+
+  if (change > 1) return { trend: 'up' as const, change: Number(change.toFixed(2)) };
+  if (change < -1) return { trend: 'down' as const, change: Number(change.toFixed(2)) };
+
+  return { trend: 'stable' as const, change: Number(change.toFixed(2)) };
+};
 const MarketPrices = () => {
   const [prices, setPrices] = useState<MarketPrice[]>([]);
   const [filteredPrices, setFilteredPrices] = useState<MarketPrice[]>([]);
@@ -28,87 +40,40 @@ const MarketPrices = () => {
   const fetchMarketPrices = async () => {
     setLoading(true);
     try {
-      // Mock market data - Replace with actual Agmarknet API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const mockPrices: MarketPrice[] = [
-        {
-          id: 1,
-          commodity: "Rice",
-          variety: "Basmati",
-          market: "Karnal (Haryana)",
-          minPrice: 4200,
-          maxPrice: 4800,
-          modalPrice: 4500,
-          date: "2024-12-26",
-          trend: 'up',
-          change: 2.5
-        },
-        {
-          id: 2,
-          commodity: "Wheat",
-          variety: "HD-2967",
-          market: "Mandi Gobindgarh (Punjab)",
-          minPrice: 2180,
-          maxPrice: 2220,
-          modalPrice: 2200,
-          date: "2024-12-26",
-          trend: 'down',
-          change: -1.2
-        },
-        {
-          id: 3,
-          commodity: "Soyabean",
-          variety: "Yellow",
-          market: "Indore (MP)",
-          minPrice: 4500,
-          maxPrice: 4700,
-          modalPrice: 4600,
-          date: "2024-12-26",
-          trend: 'up',
-          change: 3.1
-        },
-        {
-          id: 4,
-          commodity: "Cotton",
-          variety: "Medium Staple",
-          market: "Rajkot (Gujarat)",
-          minPrice: 6800,
-          maxPrice: 7200,
-          modalPrice: 7000,
-          date: "2024-12-26",
-          trend: 'stable',
-          change: 0.3
-        },
-        {
-          id: 5,
-          commodity: "Onion",
-          variety: "Big",
-          market: "Lasalgaon (Maharashtra)",
-          minPrice: 1500,
-          maxPrice: 2000,
-          modalPrice: 1750,
-          date: "2024-12-26",
-          trend: 'up',
-          change: 8.5
-        },
-        {
-          id: 6,
-          commodity: "Potato",
-          variety: "Red",
-          market: "Agra (UP)",
-          minPrice: 800,
-          maxPrice: 1200,
-          modalPrice: 1000,
-          date: "2024-12-26",
-          trend: 'down',
-          change: -5.2
+      const response = await fetch(
+        `https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?api-key=579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b&format=json&limit=20`
+      );
+
+      const data = await response.json();
+
+      const apiPrices: MarketPrice[] = data.records.map(
+        (item: any, index: number) => {
+          // Simulate yesterday’s modal price (for trend calculation)
+          const yesterdayModal = Number(item.modal_price) * (1 + (Math.random() - 0.5) / 10);
+
+          const { trend, change } = calculateTrend(
+            Number(item.modal_price),
+            yesterdayModal
+          );
+
+          return {
+            id: index,
+            commodity: item.commodity,
+            variety: item.variety || "N/A",
+            market: `${item.market}, ${item.district}, ${item.state}`,
+            minPrice: Number(item.min_price),
+            maxPrice: Number(item.max_price),
+            modalPrice: Number(item.modal_price),
+            date: item.arrival_date,
+            trend,
+            change,
+          };
         }
-      ];
-      
-      setPrices(mockPrices);
-      setFilteredPrices(mockPrices);
-      
+      );
+
+      setPrices(apiPrices);
+      setFilteredPrices(apiPrices);
+
       toast({
         title: "Prices Updated",
         description: "Latest market prices fetched successfully"
