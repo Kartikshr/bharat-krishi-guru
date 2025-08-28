@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, Camera, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import cropDiseaseIcon from "@/assets/crop-disease-icon.png";
-import { useLocation } from "@/contexts/LocationContext";
+import { analyzeCrop } from "./huggingface"; // 👈 since same folder
+
 
 const CropDiseaseDetection = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
   const { toast } = useToast();
-  const { selectedLocation } = useLocation();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -21,52 +21,82 @@ const CropDiseaseDetection = () => {
     }
   };
 
-  const analyzeCropImage = async () => {
-    if (!selectedFile) return;
+  // const analyzeCropImage = async () => {
+  //   if (!selectedFile) return;
 
-    setIsAnalyzing(true);
+  //   setIsAnalyzing(true);
     
-    // Simulate AI analysis - Replace with actual AI model integration
-    try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+  //   // Simulate AI analysis - Replace with actual AI model integration
+  //   try {
+  //     await new Promise(resolve => setTimeout(resolve, 3000));
       
-      const mockResult = {
-        disease: "Late Blight",
-        confidence: 87,
-        description: `A serious disease affecting potato and tomato crops in ${selectedLocation}, caused by Phytophthora infestans. Common in this region's climate conditions.`,
+  //     const mockResult = {
+  //       disease: "Late Blight",
+  //       confidence: 87,
+  //       description: "A serious disease affecting potato and tomato crops, caused by Phytophthora infestans.",
+  //       treatments: {
+  //         chemical: ["Apply Mancozeb 75% WP @ 2-2.5 kg/ha", "Use Copper Oxychloride 50% WP @ 2.5-3 kg/ha"],
+  //         organic: ["Neem oil spray 3ml/liter", "Bordeaux mixture application", "Improve field drainage"]
+  //       },
+  //       prevention: ["Plant resistant varieties", "Ensure proper spacing", "Remove infected plant debris"]
+  //     };
+      
+  //     setResult(mockResult);
+  //     toast({
+  //       title: "Analysis Complete",
+  //       description: "Crop disease detected successfully!",
+  //     });
+  //   } catch (error) {
+  //     toast({
+  //       title: "Analysis Failed",
+  //       description: "Please try again with a clearer image.",
+  //       variant: "destructive"
+  //     });
+  //   } finally {
+  //     setIsAnalyzing(false);
+  //   }
+  // };
+
+const analyzeCropImage = async () => {
+  if (!selectedFile) return;
+
+  setIsAnalyzing(true);
+  try {
+    const prediction = await analyzeCrop(selectedFile);
+
+    if (prediction && prediction.length > 0) {
+      const top = prediction[0]; // Highest probability result
+
+      const aiResult = {
+        disease: top.label.replace(/_/g, " "),
+        confidence: Math.round(top.score * 100),
+        description: "Detected disease based on AI model.",
         treatments: {
-          chemical: [
-            `Apply Mancozeb 75% WP @ 2-2.5 kg/ha (suitable for ${selectedLocation} conditions)`, 
-            "Use Copper Oxychloride 50% WP @ 2.5-3 kg/ha"
-          ],
-          organic: [
-            "Neem oil spray 3ml/liter", 
-            "Bordeaux mixture application", 
-            `Improve field drainage (important for ${selectedLocation} climate)`
-          ]
+          chemical: ["Apply recommended fungicide"],
+          organic: ["Neem oil spray", "Maintain crop hygiene"],
         },
-        prevention: [
-          `Plant resistant varieties suitable for ${selectedLocation}`, 
-          "Ensure proper spacing for local climate", 
-          "Remove infected plant debris"
-        ]
+        prevention: ["Use resistant varieties", "Proper crop rotation"],
       };
-      
-      setResult(mockResult);
+
+      setResult(aiResult);
       toast({
         title: "Analysis Complete",
-        description: "Crop disease detected successfully!",
+        description: `Detected: ${aiResult.disease}`,
       });
-    } catch (error) {
-      toast({
-        title: "Analysis Failed",
-        description: "Please try again with a clearer image.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsAnalyzing(false);
     }
-  };
+  } catch (error) {
+    console.error("Hugging Face error details:", error);
+
+    toast({
+      title: "Analysis Failed",
+      description: "Error analyzing crop image.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
+
 
   return (
     <section id="crop-detection" className="py-20 bg-muted/30">
@@ -77,7 +107,7 @@ const CropDiseaseDetection = () => {
             Crop Disease Detection
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Upload a photo of your crop and get instant AI-powered disease diagnosis with treatment recommendations for {selectedLocation}
+            Upload a photo of your crop and get instant AI-powered disease diagnosis with treatment recommendations
           </p>
         </div>
 
