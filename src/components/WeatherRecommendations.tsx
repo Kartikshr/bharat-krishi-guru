@@ -34,19 +34,27 @@ const WeatherRecommendations = () => {
     setLoading(true);
     try {
       // Mock weather data - Replace with actual OpenWeather API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const mockWeather: WeatherData = {
-        temperature: 28,
-        humidity: 65,
-        windSpeed: 12,
-        condition: "Partly Cloudy",
-        rainfall: 2.5,
-        location: selectedLocation
-      };
-      
-      setWeatherData(mockWeather);
-      generateRecommendations(mockWeather);
+      const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+      const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${selectedLocation}&appid=${apiKey}&units=metric`
+          );
+
+if (!res.ok) throw new Error("Weather fetch failed");
+
+const data = await res.json();
+
+const realWeather: WeatherData = {
+  temperature: data.main.temp,
+  humidity: data.main.humidity,
+  windSpeed: data.wind.speed,
+  condition: data.weather[0].description,
+  rainfall: data.rain?.["1h"] || 0,
+  location: selectedLocation
+};
+
+setWeatherData(realWeather);
+generateRecommendations(realWeather);
+
       
       toast({
         title: "Weather Updated",
