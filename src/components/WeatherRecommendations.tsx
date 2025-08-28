@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CloudRain, Sun, Thermometer, Droplets, Wind, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import weatherIcon from "@/assets/weather-icon.png";
+import { useLocation } from "@/contexts/LocationContext";
 
 interface WeatherData {
   temperature: number;
@@ -27,6 +28,7 @@ const WeatherRecommendations = () => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { selectedLocation } = useLocation();
 
   const fetchWeatherData = async () => {
     setLoading(true);
@@ -40,7 +42,7 @@ const WeatherRecommendations = () => {
         windSpeed: 12,
         condition: "Partly Cloudy",
         rainfall: 2.5,
-        location: "Delhi, India"
+        location: selectedLocation
       };
       
       setWeatherData(mockWeather);
@@ -75,7 +77,7 @@ const WeatherRecommendations = () => {
             {
               parts: [
                 {
-                  text: `You are an agricultural expert. Based on the following weather conditions, provide 3-5 specific farming recommendations in JSON format. Weather: Temperature: ${weather.temperature}°C, Humidity: ${weather.humidity}%, Wind Speed: ${weather.windSpeed} km/h, Rainfall: ${weather.rainfall}mm, Condition: ${weather.condition}. 
+                  text: `You are an agricultural expert. Based on the following weather conditions for ${weather.location}, provide 3-5 specific farming recommendations in JSON format. Weather: Temperature: ${weather.temperature}°C, Humidity: ${weather.humidity}%, Wind Speed: ${weather.windSpeed} km/h, Rainfall: ${weather.rainfall}mm, Condition: ${weather.condition}. Location: ${weather.location}
 
 Return only valid JSON in this exact format:
 [
@@ -191,7 +193,7 @@ Return only valid JSON in this exact format:
 
   useEffect(() => {
     fetchWeatherData();
-  }, []);
+  }, [selectedLocation]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {

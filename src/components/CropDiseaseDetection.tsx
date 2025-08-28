@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, Camera, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import cropDiseaseIcon from "@/assets/crop-disease-icon.png";
+import { useLocation } from "@/contexts/LocationContext";
 
 const CropDiseaseDetection = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
   const { toast } = useToast();
+  const { selectedLocation } = useLocation();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,12 +33,23 @@ const CropDiseaseDetection = () => {
       const mockResult = {
         disease: "Late Blight",
         confidence: 87,
-        description: "A serious disease affecting potato and tomato crops, caused by Phytophthora infestans.",
+        description: `A serious disease affecting potato and tomato crops in ${selectedLocation}, caused by Phytophthora infestans. Common in this region's climate conditions.`,
         treatments: {
-          chemical: ["Apply Mancozeb 75% WP @ 2-2.5 kg/ha", "Use Copper Oxychloride 50% WP @ 2.5-3 kg/ha"],
-          organic: ["Neem oil spray 3ml/liter", "Bordeaux mixture application", "Improve field drainage"]
+          chemical: [
+            `Apply Mancozeb 75% WP @ 2-2.5 kg/ha (suitable for ${selectedLocation} conditions)`, 
+            "Use Copper Oxychloride 50% WP @ 2.5-3 kg/ha"
+          ],
+          organic: [
+            "Neem oil spray 3ml/liter", 
+            "Bordeaux mixture application", 
+            `Improve field drainage (important for ${selectedLocation} climate)`
+          ]
         },
-        prevention: ["Plant resistant varieties", "Ensure proper spacing", "Remove infected plant debris"]
+        prevention: [
+          `Plant resistant varieties suitable for ${selectedLocation}`, 
+          "Ensure proper spacing for local climate", 
+          "Remove infected plant debris"
+        ]
       };
       
       setResult(mockResult);
@@ -64,7 +77,7 @@ const CropDiseaseDetection = () => {
             Crop Disease Detection
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Upload a photo of your crop and get instant AI-powered disease diagnosis with treatment recommendations
+            Upload a photo of your crop and get instant AI-powered disease diagnosis with treatment recommendations for {selectedLocation}
           </p>
         </div>
 

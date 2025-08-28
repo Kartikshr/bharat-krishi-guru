@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrendingUp, TrendingDown, MapPin, Search, IndianRupee } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "@/contexts/LocationContext";
 
 interface MarketPrice {
   id: number;
@@ -36,6 +37,7 @@ const MarketPrices = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { selectedLocation } = useLocation();
 
   const fetchMarketPrices = async () => {
     setLoading(true);
@@ -56,11 +58,17 @@ const MarketPrices = () => {
             yesterdayModal
           );
 
+          // Filter by selected location if available
+          const locationMatch = selectedLocation.split(',')[0].toLowerCase();
+          const itemLocation = `${item.market}, ${item.district}, ${item.state}`.toLowerCase();
+          
           return {
             id: index,
             commodity: item.commodity,
             variety: item.variety || "N/A",
-            market: `${item.market}, ${item.district}, ${item.state}`,
+            market: itemLocation.includes(locationMatch) ? 
+              `${item.market}, ${item.district}, ${item.state}` : 
+              `${item.market}, ${item.district}, ${item.state}`,
             minPrice: Number(item.min_price),
             maxPrice: Number(item.max_price),
             modalPrice: Number(item.modal_price),
@@ -69,7 +77,12 @@ const MarketPrices = () => {
             change,
           };
         }
-      );
+      ).filter((item: MarketPrice) => {
+        // Prioritize prices from selected location
+        const locationMatch = selectedLocation.split(',')[0].toLowerCase();
+        const itemLocation = item.market.toLowerCase();
+        return itemLocation.includes(locationMatch) || Math.random() > 0.7; // Show some from other locations too
+      });
 
       setPrices(apiPrices);
       setFilteredPrices(apiPrices);
@@ -91,7 +104,7 @@ const MarketPrices = () => {
 
   useEffect(() => {
     fetchMarketPrices();
-  }, []);
+  }, [selectedLocation]);
 
   useEffect(() => {
     const filtered = prices.filter(price => 
@@ -138,7 +151,7 @@ const MarketPrices = () => {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
                   <IndianRupee className="w-5 h-5 mr-2 text-primary" />
-                  Live Market Prices
+                  Live Market Prices - {selectedLocation}
                 </div>
                 <Button onClick={fetchMarketPrices} disabled={loading} variant="outline">
                   {loading ? "Updating..." : "Refresh Prices"}

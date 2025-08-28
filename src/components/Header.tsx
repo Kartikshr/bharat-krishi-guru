@@ -2,14 +2,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, Mic, Globe, User, LogOut } from "lucide-react";
+import { Menu, Mic, Globe, User, LogOut, MapPin } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLocation } from "@/contexts/LocationContext";
 
 const Header = () => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   const { language, setLanguage, t } = useLanguage();
+  const { selectedLocation, setSelectedLocation, availableLocations, updateUserLocation } = useLocation();
 
   useEffect(() => {
     // Get initial session
@@ -37,6 +40,14 @@ const Header = () => {
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'hi' : 'en');
   };
+
+  const handleLocationChange = async (location: string) => {
+    setSelectedLocation(location);
+    if (user) {
+      await updateUserLocation(location);
+    }
+  };
+
   return (
     <header className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -70,6 +81,21 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center space-x-3">
+            <div className="hidden md:flex items-center space-x-2">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+              <Select value={selectedLocation} onValueChange={handleLocationChange}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Select location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableLocations.map((location) => (
+                    <SelectItem key={location} value={location}>
+                      {location}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {user ? (
               <>
                 <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>

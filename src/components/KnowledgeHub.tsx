@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BookOpen, Search, FileText, Award, Users, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "@/contexts/LocationContext";
 
 interface Article {
   id: number;
@@ -30,14 +31,15 @@ const KnowledgeHub = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<'articles' | 'schemes'>('articles');
   const { toast } = useToast();
+  const { selectedLocation } = useLocation();
 
   const articles: Article[] = [
     {
       id: 1,
       title: "Organic Farming Best Practices",
-      titleHindi: "जैविक खेती की सर्वोत्तम प्रथाएं",
+      titleHindi: `${selectedLocation} में जैविक खेती की सर्वोत्तम प्रथाएं`,
       category: "Organic Farming",
-      content: "Learn sustainable farming techniques that improve soil health and crop yield while protecting the environment...",
+      content: `Learn sustainable farming techniques specific to ${selectedLocation} that improve soil health and crop yield while protecting the environment...`,
       readTime: 5,
       date: "2024-12-20",
       icon: BookOpen
@@ -45,9 +47,9 @@ const KnowledgeHub = () => {
     {
       id: 2,
       title: "Integrated Pest Management",
-      titleHindi: "एकीकृत कीट प्रबंधन",
+      titleHindi: `${selectedLocation} में एकीकृत कीट प्रबंधन`,
       category: "Crop Protection",
-      content: "Effective strategies to control pests using biological, cultural, and chemical methods in harmony...",
+      content: `Effective strategies to control pests in ${selectedLocation} using biological, cultural, and chemical methods in harmony...`,
       readTime: 7,
       date: "2024-12-18",
       icon: FileText
@@ -55,9 +57,9 @@ const KnowledgeHub = () => {
     {
       id: 3,
       title: "Water Conservation Techniques",
-      titleHindi: "जल संरक्षण तकनीकें",
+      titleHindi: `${selectedLocation} में जल संरक्षण तकनीकें`,
       category: "Irrigation",
-      content: "Modern irrigation methods and water-saving techniques for efficient farming...",
+      content: `Modern irrigation methods and water-saving techniques for efficient farming in ${selectedLocation}...`,
       readTime: 6,
       date: "2024-12-15",
       icon: BookOpen
@@ -65,9 +67,9 @@ const KnowledgeHub = () => {
     {
       id: 4,
       title: "Soil Health Management",
-      titleHindi: "मिट्टी स्वास्थ्य प्रबंधन",
+      titleHindi: `${selectedLocation} में मिट्टी स्वास्थ्य प्रबंधन`,
       category: "Soil Science",
-      content: "Understanding soil composition, testing, and improvement strategies for better productivity...",
+      content: `Understanding soil composition, testing, and improvement strategies for better productivity in ${selectedLocation}...`,
       readTime: 8,
       date: "2024-12-12",
       icon: FileText
@@ -82,7 +84,7 @@ const KnowledgeHub = () => {
       description: "Direct financial support of ₹6000 per year to eligible farmers",
       eligibility: ["Small and marginal farmers", "Land holding up to 2 hectares", "Valid Aadhaar card"],
       benefits: ["₹2000 every 4 months", "Direct bank transfer", "No paperwork after registration"],
-      application: "Visit nearest CSC or online at pmkisan.gov.in"
+      application: `Visit nearest CSC in ${selectedLocation} or online at pmkisan.gov.in`
     },
     {
       id: 2,
@@ -91,7 +93,7 @@ const KnowledgeHub = () => {
       description: "Crop insurance scheme providing financial support against crop loss",
       eligibility: ["All farmers (sharecroppers & tenant farmers)", "Notified crops", "Valid land documents"],
       benefits: ["Premium subsidy up to 95%", "Coverage for natural calamities", "Quick claim settlement"],
-      application: "Through banks, CSCs, or insurance company portals"
+      application: `Through banks, CSCs in ${selectedLocation}, or insurance company portals`
     },
     {
       id: 3,
@@ -100,7 +102,7 @@ const KnowledgeHub = () => {
       description: "Free soil testing and nutrient-based fertilizer recommendations",
       eligibility: ["All farmers", "Valid land records", "Soil samples from registered fields"],
       benefits: ["Free soil testing", "Customized fertilizer recommendations", "Improved crop productivity"],
-      application: "Contact local agriculture department or soil testing labs"
+      application: `Contact local agriculture department in ${selectedLocation} or soil testing labs`
     }
   ];
 
@@ -141,7 +143,7 @@ const KnowledgeHub = () => {
             Knowledge Hub
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Access comprehensive farming guides, best practices, and government schemes in Hindi and English
+            Access comprehensive farming guides, best practices, and government schemes for {selectedLocation} in Hindi and English
           </p>
         </div>
 

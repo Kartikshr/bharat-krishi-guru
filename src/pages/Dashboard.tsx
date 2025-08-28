@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { User, LogOut, Sprout, Cloud, TrendingUp, Book, Bot, Camera } from "lucide-react";
+import { useLocation } from "@/contexts/LocationContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Profile {
   id: string;
@@ -22,6 +24,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { selectedLocation, availableLocations, updateUserLocation } = useLocation();
 
   useEffect(() => {
     // Check authentication and get user data
@@ -76,6 +79,16 @@ const Dashboard = () => {
       navigate("/auth");
     } catch (error: any) {
       toast.error("Error signing out: " + error.message);
+    }
+  };
+
+  const handleLocationUpdate = async (newLocation: string) => {
+    try {
+      await updateUserLocation(newLocation);
+      await fetchProfile(user.id); // Refresh profile data
+      toast.success("Location updated successfully!");
+    } catch (error: any) {
+      toast.error("Error updating location: " + error.message);
     }
   };
 
@@ -164,7 +177,20 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Location</p>
-                <p className="font-medium">{profile?.location || "Not set"}</p>
+                <div className="mt-1">
+                  <Select value={selectedLocation} onValueChange={handleLocationUpdate}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableLocations.map((location) => (
+                        <SelectItem key={location} value={location}>
+                          {location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Farm Size</p>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, Mic, MicOff, Volume2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import chatbotIcon from "@/assets/chatbot-icon.png";
+import { useLocation } from "@/contexts/LocationContext";
 
 interface Message {
   id: number;
@@ -27,6 +28,7 @@ const AIChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { selectedLocation } = useLocation();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,7 +62,7 @@ const AIChatbot = () => {
             {
               parts: [
                 {
-                  text: `You are an agricultural assistant for Indian farmers. Answer in Hindi and English as appropriate. Focus on practical farming advice, crop management, fertilizers, government schemes, and agricultural best practices. User query: ${userQuery}`
+                  text: `You are an agricultural assistant for Indian farmers in ${selectedLocation}. Answer in Hindi and English as appropriate. Focus on practical farming advice, crop management, fertilizers, government schemes, and agricultural best practices specific to ${selectedLocation} region. Consider local climate, soil conditions, and regional farming practices. User query: ${userQuery}`
                 }
               ]
             }
@@ -111,15 +113,16 @@ const AIChatbot = () => {
   const generateLocalFallback = (userInput: string): string => {
     // Fallback responses when Gemini API is unavailable
     const lowerInput = userInput.toLowerCase();
+    const locationContext = `for ${selectedLocation} region`;
     
     if (lowerInput.includes('fertilizer') || lowerInput.includes('उर्वरक')) {
-      return "मैं उर्वरक के बारे में बता सकता हूँ। आपकी फसल के लिए NPK उर्वरक (नाइट्रोजन, फास्फोरस, पोटेशियम) का संतुलित उपयोग करें। धान के लिए यूरिया 120 kg/हेक्टेयर, DAP 60 kg/हेक्टेयर की सिफारिश की जाती है।";
+      return `मैं ${selectedLocation} के लिए उर्वरक के बारे में बता सकता हूँ। आपकी फसल के लिए NPK उर्वरक (नाइट्रोजन, फास्फोरस, पोटेशियम) का संतुलित उपयोग करें। धान के लिए यूरिया 120 kg/हेक्टेयर, DAP 60 kg/हेक्टेयर की सिफारिश की जाती है।`;
     } else if (lowerInput.includes('irrigation') || lowerInput.includes('सिंचाई')) {
-      return "सिंचाई के लिए मिट्टी की नमी जांचें। ड्रिप इरिगेशन सबसे बेहतर है - यह 30-50% पानी बचाता है। फसल के अनुसार सिंचाई करें: धान को अधिक पानी चाहिए, गेहूं को कम।";
+      return `${selectedLocation} में सिंचाई के लिए मिट्टी की नमी जांचें। ड्रिप इरिगेशन सबसे बेहतर है - यह 30-50% पानी बचाता है। स्थानीय जलवायु के अनुसार सिंचाई करें।`;
     } else if (lowerInput.includes('scheme') || lowerInput.includes('योजना')) {
-      return "सरकारी कृषि योजनाएं: PM किसान सम्मान निधि (₹6000/वर्ष), फसल बीमा योजना, मृदा स्वास्थ्य कार्ड योजना, किसान क्रेडिट कार्ड। इनके लिए नजदीकी कृषि कार्यालय से संपर्क करें।";
+      return `${selectedLocation} में उपलब्ध सरकारी कृषि योजनाएं: PM किसान सम्मान निधि (₹6000/वर्ष), फसल बीमा योजना, मृदा स्वास्थ्य कार्ड योजना, किसान क्रेडिट कार्ड। स्थानीय कृषि कार्यालय से संपर्क करें।`;
     } else {
-      return "मैं समझ गया। कृषि से संबंधित किसी भी समस्या के लिए आप पूछ सकते हैं। मैं फसल की बीमारी, उर्वरक, सिंचाई, बाजार की कीमत और सरकारी योजनाओं के बारे में जानकारी दे सकता हूँ।";
+      return `मैं ${selectedLocation} के लिए कृषि सहायक हूँ। आप फसल की बीमारी, उर्वरक, सिंचाई, बाजार की कीमत और स्थानीय सरकारी योजनाओं के बारे में पूछ सकते हैं।`;
     }
   };
 
